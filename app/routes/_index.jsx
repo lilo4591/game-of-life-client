@@ -29,12 +29,6 @@ const handlePost = async () => {
 
 const dataTwo = [ [0, 0], [0, 2], [0, 1], [0, 3] ]
 
-const data = [
-  { name: "0,0", age: "0,1", gender: "0,2", hello: "0,3" },
-  { name: "1,0", age: "1,1", gender: "1,2", hello: "1,3" },
-  { name: "2,0", age: "2,1", gender: "2,2", hello: "2,3" },
-]
-
 export default function Index() {
 
   const setToActive = () => {
