@@ -135,3 +135,7 @@ node_modules
 /build
 /public/build
 .env
+
+# Intellij files
+.idea/
+*.iml
