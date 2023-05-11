@@ -1,16 +1,16 @@
 import '../App.css';
+import { useEffect, useState } from 'react';
 
 export const meta = () => {
-  return [{ title: "New Remix App" }];
+  return [{ title: "Game of Life" }];
 };
 
 
-const handleGet = async () => {
+export const handleGet = async () => {
     const response = await fetch("http://localhost:8080/game");
     const responseData = await response.json();
-    console.log(responseData);
+    return responseData
   }
-
 
 const handlePost = async () => {
     const response = await fetch("http://localhost:8080/game", {
@@ -30,18 +30,31 @@ const handlePost = async () => {
 const dataTwo = [ [0, 0], [0, 2], [0, 1], [0, 3] ]
 
 export default function Index() {
+  const [board, setBoard] = useState([]);
+  const [clickedIndex, setClickedIndex] = useState({ row: null, col: null });
 
-  const setToActive = () => {
-    this.className.push('active')
-  }
+  useEffect(() => {
+    async function handleGet1() {
+      const response = await fetch("http://localhost:8080/game");
+      const responseData = await response.json();
+      setBoard(responseData)
+    }
+    handleGet1();
+  }, []);
+
+  function handleClick(row, col) {
+    console.log("row: " + row + " column: " + col);
+    setClickedIndex({ row, col }); // update the state with the index of the clicked td element
+   }
 
   const renderTable = () => {
     const rows = [];
 
-    for(let i = 0; i < 20; i++) {
+    for(let i = 0; i < board.rows; i++) {
       const cells = [];
-      for (let j = 0; j < 20; j++) {
-        cells.push(<td key= {`${i} + ${j}`} className='cells' onClick="setToActive()"> {i},{j}</td>)   
+      for (let j = 0; j < board.columns; j++) {
+        const isActive = clickedIndex?.row === i && clickedIndex?.col === j;
+        cells.push(<td key= {`${i} + ${j}`} className={`cells ${isActive ? "active" : ""}`} onClick={() => handleClick(i, j)}> </td>)   
       }
       rows.push(<tr key= {`${i}`}>{cells}</tr>)
     }
@@ -57,8 +70,8 @@ export default function Index() {
         {renderTable()}
         </table>
 
-        <button onClick={handleGet}>Get</button>
-        <button onClick={handlePost}>Post</button>
+        <button className="button" onClick={handleGet}>Get</button>
+        <button className="button" onClick={handlePost}>Post</button>
       </div>
     </div>
   );
