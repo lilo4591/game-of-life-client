@@ -6,72 +6,121 @@ export const meta = () => {
 };
 
 
-export const handleGet = async () => {
-    const response = await fetch("http://localhost:8080/game");
-    const responseData = await response.json();
-    return responseData
-  }
-
 const handlePost = async () => {
-    const response = await fetch("http://localhost:8080/game", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ coordinates: [[0, 1]] }),
-    });
-    const json = await response.json();
-    console.log(JSON.stringify({ coordinates: [[0, 1]] }));
-    console.log(json);
-  };
+  const response = await fetch("http://localhost:8080/game", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ coordinates: [[0, 1]] }),
+  });
+  const json = await response.json();
+  console.log(JSON.stringify({ coordinates: [[0, 1]] }));
+  console.log(json);
+};
 
 
 
-const dataTwo = [ [0, 0], [0, 2], [0, 1], [0, 3] ]
+const dataTwo = [[0, 0], [0, 2], [0, 1], [0, 3]]
 
 export default function Index() {
-  const [board, setBoard] = useState([]);
-  const [clickedIndex, setClickedIndex] = useState({ row: null, col: null });
+  const [boardSize, setBoardSize] = useState([]);
+  const [activeCells, setActiveCells] = useState([]);
+  const [runSimulation, setRunSimulation] = useState([]);
+
+  let runInterval;
 
   useEffect(() => {
-    async function handleGet1() {
+    async function handleGet() {
       const response = await fetch("http://localhost:8080/game");
       const responseData = await response.json();
-      setBoard(responseData)
+      setBoardSize(responseData)
     }
-    handleGet1();
+    handleGet();
   }, []);
 
+
+   
+    async function handlePost() {
+      console.log("active cells yoo " )
+      activeCells.map(elem => console.log(elem))
+
+      const response = await fetch("http://localhost:8080/game", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ coordinates: [[0, 0], [0, 1], [0, 2] ] }),
+      });
+      const json = await response.json();
+      console.log(JSON.stringify({ coordinates: [[0, 1]] }));
+      console.log(json);
+
+    }
+    
+  
+
+  function callService() {
+    console.log("Run simluation")
+    handlePost();
+  }
+
+
+  function startSimulation() {
+    activeCells.map(elem => console.log(elem))
+    callService();
+    /*if (!runInterval) {
+      runInterval = setInterval(callService, 5000);
+    }*/
+  }
+
+  function stopSimulation() {
+    clearInterval(runInterval)
+    console.log("Stop simluation")
+  }
+
+  
+
   function handleClick(row, col) {
+    var isNotAlreadyActive = activeCells.findIndex((c => c.row === row && c.col === col)) === -1;
+    if (isNotAlreadyActive) {
+      setActiveCells([...activeCells, { row, col }]);
+    }
+    else {
+      //TODO delete from cell when clicked again
+    }
     console.log("row: " + row + " column: " + col);
-    setClickedIndex({ row, col }); // update the state with the index of the clicked td element
-   }
+    activeCells.map(elem => console.log(elem))
+  }
 
   const renderTable = () => {
     const rows = [];
 
-    for(let i = 0; i < board.rows; i++) {
+    for (let i = 0; i < boardSize.rows; i++) {
       const cells = [];
-      for (let j = 0; j < board.columns; j++) {
-        const isActive = clickedIndex?.row === i && clickedIndex?.col === j;
-        cells.push(<td key= {`${i} + ${j}`} className={`cells ${isActive ? "active" : ""}`} onClick={() => handleClick(i, j)}> </td>)   
+      for (let j = 0; j < boardSize.columns; j++) {
+        const isActive = activeCells.some((cell) => cell.row === i && cell.col === j); // check if the current cell is active
+        cells.push(<td key={`${i} + ${j}`} className={`cells ${isActive ? "active" : ""}`} onClick={() => handleClick(i, j)}> </td>)
       }
-      rows.push(<tr key= {`${i}`}>{cells}</tr>)
+      rows.push(<tr key={`${i}`}>{cells}</tr>)
     }
     return <tbody>{rows}</tbody>
   }
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>game-of-life</h1>
       <div className="App">
+        <h1>game-of-life</h1>
+
+        <div className='buttonClass'>
+          <button className="button"  onClick={() => startSimulation()}>Start</button>
+          <button className="button" onClick={() => stopSimulation()}>Stop</button>
+        </div>
 
         <table>
-        {renderTable()}
+          {renderTable()}
         </table>
 
-        <button className="button" onClick={handleGet}>Get</button>
-        <button className="button" onClick={handlePost}>Post</button>
       </div>
     </div>
   );
