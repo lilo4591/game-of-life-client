@@ -9,8 +9,17 @@
     box-sizing: border-box;
 }
 
+
+
+
 h1 {
     text-align: center;
+    font-size: 40px;
+    font-weight: 600;
+    background-image: linear-gradient(to left, #709a3c, #b9be1e);
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
 }
 
 td {
