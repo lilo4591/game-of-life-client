@@ -1,5 +1,5 @@
 import '../App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 
 export const meta = () => {
   return [{ title: "Game of Life" }];
@@ -20,15 +20,18 @@ const handlePost = async () => {
 };
 
 
-
-const dataTwo = [[0, 0], [0, 2], [0, 1], [0, 3]]
-
 export default function Index() {
+  
+
   const [boardSize, setBoardSize] = useState([]);
   const [activeCells, setActiveCells] = useState([]);
   const [runSimulation, setRunSimulation] = useState([]);
+  const [isRunning, setIsRunning] = useState(false);
 
-  let runInterval;
+  const [count, setCount] = useState(0);
+  const savedCallback = useRef(() => {});
+
+  var runInterval;
 
   useEffect(() => {
     async function handleGet() {
@@ -40,22 +43,21 @@ export default function Index() {
   }, []);
 
 
-   
-    async function handlePost() {
-      console.log("active cells yoo " )
-      activeCells.map(elem => console.log(elem))
+
+    async function handlePost(savedCallbackActiveCells) {
+      console.log(savedCallbackActiveCells)
 
       const response = await fetch("http://localhost:8080/game", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ coordinates: [[0, 0], [0, 1], [0, 2] ] }),
+        body: JSON.stringify({ coordinates: activeCells })
       });
+    
       const json = await response.json();
-      console.log(JSON.stringify({ coordinates: [[0, 1]] }));
-      console.log(json);
-
+      console.log("coordinates in handle post: " + json.coordinates)
+      setActiveCells(json.coordinates);
     }
     
   
@@ -65,26 +67,98 @@ export default function Index() {
     handlePost();
   }
 
+  function updateStateOfActiveCells(prevActiveCells, newActiveCells) {
+
+    let length = prevActiveCells.length;
+    for (let i = 0; i < length; i++) {
+      prevActiveCells.pop();
+    } 
+    console.log("EMPTY: " + prevActiveCells)
+
+
+    for (let i = 0; i < newActiveCells.length; i++) {
+      prevActiveCells.push(newActiveCells[i]);
+    } 
+    
+    console.log("newActiveCells in handle post: " + newActiveCells)
+    console.log("prevActiveCells in handle post: " + prevActiveCells)
+
+    return prevActiveCells;
+    
+  }
+
+  useEffect(() => {
+    savedCallback.current = async (savedCallbackActiveCells) => {
+      
+      setCount((prevCount) => prevCount + 1);
+      const response = await fetch("http://localhost:8080/game", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ coordinates: savedCallbackActiveCells })
+      });
+    
+      const json = await response.json();
+
+      activeCells.map(elem => console.log(elem))
+      setActiveCells((prevActiveCells) => {
+        return updateStateOfActiveCells(prevActiveCells, json.coordinates)
+      });
+
+      
+    };
+  }, []);
+
+  useEffect(() => {
+    function tick() {
+      savedCallback.current(activeCells);    }
+
+      let id;
+      if (isRunning) {
+        id = setInterval(tick, 1000);
+      } 
+    return () => {
+      clearInterval(id);
+      setCount(0);
+    };
+  }, [isRunning]);
 
   function startSimulation() {
     activeCells.map(elem => console.log(elem))
-    callService();
-    /*if (!runInterval) {
-      runInterval = setInterval(callService, 5000);
-    }*/
+    console.log("interval in start simulation: " + count)
+    console.log("isRunning in start simulation: " + isRunning)
+    setIsRunning(true);
+    startCounter()
+    console.log("interval in start simulation: " + count)
+    console.log("isRunning in start simulation: " + isRunning)
+    while (count !== 0) {
+      handlePost()
   }
+}
 
   function stopSimulation() {
-    clearInterval(runInterval)
+    console.log("interval in stop simulation before clear: " + runInterval)
+    clearInterval(runSimulation)
+    console.log("interval in stop simulation after clear: " + runInterval)
+    runInterval = null
     console.log("Stop simluation")
+    stopCounter()
   }
 
-  
+  function startCounter() {
+    setIsRunning(true);
+  }
+
+  function stopCounter() {
+    setIsRunning(false);
+  }
+
 
   function handleClick(row, col) {
-    var isNotAlreadyActive = activeCells.findIndex((c => c.row === row && c.col === col)) === -1;
+    var isNotAlreadyActive = activeCells.findIndex((c => c[0] === row && c[1] === col)) === -1;
     if (isNotAlreadyActive) {
-      setActiveCells([...activeCells, { row, col }]);
+      setActiveCells([...activeCells, [row, col]]);
     }
     else {
       //TODO delete from cell when clicked again
@@ -99,7 +173,7 @@ export default function Index() {
     for (let i = 0; i < boardSize.rows; i++) {
       const cells = [];
       for (let j = 0; j < boardSize.columns; j++) {
-        const isActive = activeCells.some((cell) => cell.row === i && cell.col === j); // check if the current cell is active
+        const isActive = activeCells.some((cell) => cell[0] === i && cell[1] === j); // check if the current cell is active
         cells.push(<td key={`${i} + ${j}`} className={`cells ${isActive ? "active" : ""}`} onClick={() => handleClick(i, j)}> </td>)
       }
       rows.push(<tr key={`${i}`}>{cells}</tr>)
@@ -110,7 +184,7 @@ export default function Index() {
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
       <div className="App">
-        <h1>game-of-life</h1>
+        <h1>game-of-life {count}</h1>
 
         <div className='buttonClass'>
           <button className="button"  onClick={() => startSimulation()}>Start</button>
