@@ -1,4 +1,4 @@
-# Welcome the game of life
+# Welcome the game of life client implementation
 
 This app is built with react and remix. 
 
