@@ -6,6 +6,8 @@ This app is built with react and remix.
 
 This is the client implementation of the game, game of life
 
+![simultion](simulation.png)
+
 ## Prerequisites 
 npm 
 remix
