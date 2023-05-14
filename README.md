@@ -51,4 +51,6 @@ The universe of the Game of Life is an infinite, two-dimensional orthogonal grid
 * Be able to clear the board
 * Stop simulation when there are no active cells
 * Make more use of remix framework instead of react as of today
+* Move restcall to an own component
+* Fix better state handling
 
