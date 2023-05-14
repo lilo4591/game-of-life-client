@@ -22,7 +22,7 @@ Install remix
 npm install remix
 ```
 
-When you have the game-of-life service running you can start this app in development mode by running this from your terminal when stadning at root folder of this repo.
+When you have the game-of-life service running you can start this app in development mode by running this from your terminal when standning at root folder of this repo.
 
 ```sh
 npm run dev
