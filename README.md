@@ -10,7 +10,9 @@ This is the client implementation of the game, game of life
 
 ## Prerequisites 
 npm 
+
 remix
+
 services used by this app is defined here: [game-of-life-service](https://github.com/lilo4591/game-of-life), follow the guide there to set up the service. 
 
 ## Run app locally
