@@ -9,16 +9,14 @@ This is the client implementation of the game, game of life
 ![simultion](simulation.png)
 
 ## Prerequisites 
-npm 
-
-remix
+node.js at least version 14 installed
 
 services used by this app is defined here: [game-of-life-service](https://github.com/lilo4591/game-of-life), follow the guide there to set up the service. 
 
 ## Run app locally
 clone this repo
 
-When you have the service running you can start this app in development mode by running this from your terminal.
+When you have the game-of-life service running you can start this app in development mode by running this from your terminal when stadning at root folder of this repo.
 
 ```sh
 npm run dev
