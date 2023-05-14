@@ -16,6 +16,12 @@ services used by this app is defined here: [game-of-life-service](https://github
 ## Run app locally
 clone this repo
 
+Install remix
+
+```sh
+npm install remix
+```
+
 When you have the game-of-life service running you can start this app in development mode by running this from your terminal when stadning at root folder of this repo.
 
 ```sh
